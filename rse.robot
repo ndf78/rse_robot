@@ -1,31 +1,80 @@
 *** Settings ***
 Library    Browser
 Library    Collections
-Library    OperatingSystem
-Library    DebugLibrary
 Library    String
-Library    RapportLibrary.py
+Library    ExcelLibrary
 
-Suite Setup    Configuration du robot
+Variables    liste_url.yaml
+
+Suite Setup       Initialisation du robot
+Test Setup        Initialisation du cas de test
+Test Teardown     Fin du cas de test
 Suite Teardown    Fermeture des navigateurs
 
 *** Keywords ***
-Configuration du robot
-    Browser.Set Browser Timeout    timeout=30 sec
+Initialisation du robot
+    Builtin.Set Suite Variable               ${consommation_campagne_de_test}
+    ...                                      0
+    Builtin.Set Suite Variable               ${excel_numero_de_ligne}       
+    ...                                      1
+    Builtin.Set Suite Variable               ${excel_nombre_cas_de_test} 
+    ...                                      1
+    Browser.Set Browser Timeout              timeout=60 sec
+    ExcelLibrary.Create Excel Document       doc_id=rapport
+    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
+    ...                                      col_num=5
+    ...                                      value=Cas de test
+    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
+    ...                                      col_num=6
+    ...                                      value=Consommation C02 total du cas de test (en g)
+    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
+    ...                                      col_num=8
+    ...                                      value=Campagne de test
+    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}
+    ...                                      col_num=9
+    ...                                      value=Consommation CO2 total de la campagne de test (en g)
 
 Fermeture des navigateurs
+    ExcelLibrary.Write Excel Cell            row_num=2    
+    ...                                      col_num=8
+    ...                                      value=${SUITE_NAME}
+    ExcelLibrary.Write Excel Cell            row_num=2      
+    ...                                      col_num=9
+    ...                                      value=${consommation_campagne_de_test}
+    ExcelLibrary.Save Excel Document    filename=rapport/rapport.xlsx
+    ExcelLibrary.Close All Excel Documents
     Browser.Close Browser
 
-Lister les urls a controler
-    [Tags]    log
-    ${liste_url_a_controler}    Builtin.Create List     https://www.ausy.fr/fr/
-                                ...                     https://www.ausy.fr/fr/nos-solutions/
-                                ...                     https://www.impots.gouv.fr/accueil
-                                ...                     https://greenpixie.com/website-carbon-calculator
-                                ...                     https://www.ausy.fr/fr/secteurs-d-activite/
-    RETURN    ${liste_url_a_controler}
+Initialisation du cas de test
+    ExcelLibrary.Write Excel Cell            row_num=${excel_numero_de_ligne}         
+    ...                                      col_num=1
+    ...                                      value=${TEST_NAME}
+    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}
+    ...                                      col_num=1    
+    ...                                      value=url
+    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}    
+    ...                                      col_num=2    
+    ...                                      value=Proprete du site (en %)
+    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}    
+    ...                                      col_num=3    
+    ...                                      value=Consommation de CO2 (en g)
+
+Fin du cas de test
+    ExcelLibrary.Write Excel Cell            row_num=${${excel_nombre_cas_de_test}+1}
+    ...                                      col_num=5
+    ...                                      value=${TEST_NAME}
+    ExcelLibrary.Write Excel Cell            row_num=${${excel_nombre_cas_de_test}+1}
+    ...                                      col_num=6
+    ...                                      value=${total}
+    ${excel_nombre_cas_de_test}              Builtin.Evaluate
+    ...                                      ${excel_nombre_cas_de_test} + 1
+    Builtin.Set Suite Variable               ${excel_nombre_cas_de_test}
+    ${excel_numero_de_ligne}                 Builtin.Evaluate
+    ...                                      ${excel_numero_de_ligne} + ${nombre_url_dans_cas_de_test} + 3
+    Builtin.Set Suite Variable               ${excel_numero_de_ligne}
 
 Recuperer consommation CO2 de la page
+    [Tags]    log
     [Arguments]    ${url_a_controler}
     ${requete_url}                           Builtin.Evaluate    
     ...                                      "https://api.websitecarbon.com/site?url={}".format("${url_a_controler}")
@@ -51,50 +100,66 @@ Recuperer consommation CO2 de la page
     RETURN    ${resultat.body}
 
 Afficher la consommation des sites
-    ${liste_url_a_controler}    Lister les urls a controler
-    Log To Console    ${liste_url_a_controler}
-
-    ${list_url_co2}         Builtin.Create List
-    ${list_url_proprete}    Builtin.Create List
-
-    FOR    ${url}    IN    @{liste_url_a_controler}
-        ${resultat.body}    Recuperer consommation CO2 de la page    url_a_controler=${url}
-        Log To Console    ${resultat.body}
-        ${str_resultat_co2}    Builtin.Convert To String    item=${resultat.body}[statistics][co2][grid][grams]
-        ${resultat_proprete}    Builtin.Evaluate    100 * ${resultat.body}[cleanerThan]
-        ${str_resultat_proprete}    Builtin.Convert To String    item=${resultat_proprete}
-        Collections.Append To List    ${list_url_co2}         ${str_resultat_co2}[0:5]
-        Collections.Append To List    ${list_url_proprete}    ${str_resultat_proprete}[0:5]
-        RapportLibrary.Generer rapport de la page    url=${url}
-        ...                                          proprete=${str_resultat_co2}[0:5]
-        ...                                          consommation_co2=${str_resultat_proprete}[0:5]
+    [Arguments]    ${liste_url}
+    ${iteration}                             Builtin.Set Variable    
+    ...                                      0
+    ${total}                                 Builtin.Set Variable
+    ${list_url_co2}                          Builtin.Create List
+    ${list_url_proprete}                     Builtin.Create List
+    FOR    ${url}    IN    @{liste_url}
+        ${iteration}                         Builtin.Set Variable
+        ...                                  ${0+${iteration}}
+        ${resultat.body}                     Recuperer consommation CO2 de la page    
+        ...                                  url_a_controler=${url}
+        ${total}                             Builtin.Evaluate
+        ...                                  ${total} + ${resultat.body}[statistics][co2][grid][grams]
+        ${str_resultat_co2}                  Builtin.Convert To String
+        ...                                  item=${resultat.body}[statistics][co2][grid][grams]
+        ${resultat_proprete}                 Builtin.Evaluate
+        ...                                  100 * ${resultat.body}[cleanerThan]
+        ${str_resultat_proprete}             Builtin.Convert To String
+        ...                                  item=${resultat_proprete}
+        Collections.Append To List           ${list_url_co2}
+        ...                                  ${str_resultat_co2}[0:5]
+        Collections.Append To List           ${list_url_proprete}
+        ...                                  ${str_resultat_proprete}[0:5]
+        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
+        ...                                  col_num=1
+        ...                                  value=${url}
+        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
+        ...                                  col_num=2    
+        ...                                  value=${resultat_proprete}
+        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
+        ...                                  col_num=3    
+        ...                                  value=${resultat.body}[statistics][co2][grid][grams]
+        ${iteration}                         Builtin.Set Variable
+        ...                                  ${1+${iteration}}
+        Builtin.Log                          message=${TEST_NAME}\nURL : ${url}\nConsommation de CO2 : ${str_resultat_co2}[0:5]g\nProprete du site : ${str_resultat_proprete}[0:5]
     END
+    ${consommation_co2_total}                Builtin.Convert To String
+    ...                                      item=${total}
+    ${nombre_url_dans_cas_de_test}           Builtin.Get Length
+    ...                                      item=${liste_url}
+    Builtin.Set Suite Variable               ${nombre_url_dans_cas_de_test}
+    Builtin.Set Suite Variable               ${total}
 
-    ${total}         BuiltIn.Evaluate    ${list_url_co2}[0] + ${list_url_co2}[1] + ${list_url_co2}[2] + ${list_url_co2}[3] + ${list_url_co2}[4]
-    ${consommation_co2_total}    BuiltIn.Evaluate    str(${total})
-
-    Log To Console    ${liste_url_a_controler}
-    Log To Console    ${list_url_co2}
-    Log To Console    ${list_url_proprete}
-    Log To Console    ${consommation_co2_total}
-    RapportLibrary.Generer synthese    url_1=${liste_url_a_controler}[0]
-    ...                                proprete_1=${list_url_proprete}[0]
-    ...                                consommation_co2_1=${list_url_co2}[0]
-    ...                                url_2=${liste_url_a_controler}[1]
-    ...                                proprete_2=${list_url_proprete}[1]
-    ...                                consommation_co2_2=${list_url_co2}[1]
-    ...                                url_3=${liste_url_a_controler}[2]
-    ...                                proprete_3=${list_url_proprete}[2]
-    ...                                consommation_co2_3=${list_url_co2}[2]
-    ...                                url_4=${liste_url_a_controler}[3]
-    ...                                proprete_4=${list_url_proprete}[3]
-    ...                                consommation_co2_4=${list_url_co2}[3]
-    ...                                url_5=${liste_url_a_controler}[4]
-    ...                                proprete_5=${list_url_proprete}[4]
-    ...                                consommation_co2_5=${list_url_co2}[4]
-    ...                                consommation_co2_total=${consommation_co2_total}
-
+    ${consommation_campagne_de_test}         Builtin.Evaluate
+    ...                                      ${consommation_campagne_de_test} + ${total}
+    Builtin.Set Suite Variable               ${consommation_campagne_de_test}
+    Builtin.Log    message=${TEST_NAME}\nConsommation de CO2 total : ${consommation_co2_total}g
 
 *** Test Cases ***
-Verifier la consommation CO2 des sites
-   Afficher la consommation des sites
+Cas de test 1
+    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_1}
+
+Cas de test 2
+    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_2}
+
+Cas de test 3
+    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_3}
+
+Cas de test 4
+    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_4}
+
+Cas de test 5
+    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_5}

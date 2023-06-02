@@ -4,3 +4,5 @@ playwright-log.txt
 report.html
 __pycache__
 browser
+.vscode
+interactive_console_output.xml

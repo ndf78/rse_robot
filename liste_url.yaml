@@ -1,0 +1,31 @@
+liste_url_cas_de_test_1:
+  - https://www.ausy.fr/fr/
+  - https://www.ausy.fr/fr/nos-solutions/
+  - https://www.ausy.fr/fr/a-propos-d-ausy/
+  - https://www.ausy.fr/fr/secteurs-d-activite/
+
+liste_url_cas_de_test_2:
+  - https://www.laposte.fr/
+  - https://www.laposte.fr/tarifs-postaux
+  - https://www.laposte.fr/tarifs-postaux-courrier-lettres-timbres
+  - https://www.laposte.fr/boutique/c/enveloppesblanches
+  - https://www.laposte.fr/boutique/paquet-de-100-enveloppes-blanches-dont-20-gratuites-dl-110x220-75-gm-gpv/p/mp-500002277
+
+liste_url_cas_de_test_3:
+  - https://greenpixie.com/website-carbon-calculator
+  - https://greenpixie.com/products
+
+liste_url_cas_de_test_4:
+  - https://www.amazon.fr/
+  - https://www.amazon.fr/gp/bestsellers/?ref_=nav_cs_bestsellers
+  - https://www.amazon.fr/stores/page/D6B8B829-11F7-400C-95DA-AE3951490E78?ingress=3&field-lbr_brands_browse-bin=AmazonBasics&ref_=nav_cs_amazonbasics
+  - https://www.amazon.fr/music/unlimited?ref_=nav_cs_music
+  - https://www.amazon.fr/gp/help/customer/display.html?nodeId=508510&ref_=nav_cs_help
+  - https://www.amazon.fr/gp/movers-and-shakers/?ref_=nav_em_ms_0_1_1_4
+  - https://www.amazon.fr/gp/browse.html?node=514848031&ref_=nav_em__ord_bur_ecr_0_2_14_4
+  - https://www.amazon.fr/gp/browse.html?node=1716189031&ref_=nav_em_hilg_flyout_shopall_ptht_0_2_17_4
+
+liste_url_cas_de_test_5:
+  - https://www.randstad.fr/
+  - https://www.randstad.fr/jeux-paris-2024/
+  - https://www.randstad.fr/recruteurs/choisir-randstad/
