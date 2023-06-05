@@ -148,18 +148,16 @@ Afficher la consommation des sites
     Builtin.Set Suite Variable               ${consommation_campagne_de_test}
     Builtin.Log    message=${TEST_NAME}\nConsommation de CO2 total : ${consommation_co2_total}g
 
+Connexion au site
+    [Arguments]    ${url}
+
+
+
+
+
+    
+
 *** Test Cases ***
 Cas de test 1
     Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_1}
 
-Cas de test 2
-    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_2}
-
-Cas de test 3
-    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_3}
-
-Cas de test 4
-    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_4}
-
-Cas de test 5
-    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_5}
