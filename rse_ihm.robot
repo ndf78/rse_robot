@@ -29,7 +29,13 @@ Fermeture des navigateurs
     Browser.Close Browser
 
 Initialisation du cas de test
-    ScreenCapLibrary.Start Video Recording    alias=none    name=${EXECDIR}/videos/${TEST NAME}    fps=None    size_percentage=1    embed=True    embed_width=100px    monitor=1
+    ScreenCapLibrary.Start Video Recording                     alias=none
+    ...                                                        name=${EXECDIR}/videos/${TEST NAME}
+    ...                                                        fps=None
+    ...                                                        size_percentage=1  
+    ...                                                        embed=True   
+    ...                                                        embed_width=100px   
+    ...                                                        monitor=1
     Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
     ...                                                        0
     RapportRSELibrary.Initialiser Tableau Cas De Test          fichier_sortie=rapport/rapport_ihm.xlsx
@@ -127,6 +133,7 @@ Connexion au site
     Browser.New Browser                                        browser=chromium
     ...                                                        headless=${headless}
     ...                                                        channel=chrome
+    Browser.New Context                                        viewport={'width': 1920, 'height': 1080}
     Browser.New Page                                           url=${url}
     Enregistrer consommation de la page                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Page_accueil_{index}
