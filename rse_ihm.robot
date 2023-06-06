@@ -3,8 +3,11 @@ Library    Browser
 Library    Collections
 Library    String
 Library    ExcelLibrary
+Library    DebugLibrary
+Library    ScreenCapLibrary
+Library    RapportRSELibrary.py
 
-Variables    liste_url.yaml
+Variables    liste_url_ihm.yaml
 
 Suite Setup       Initialisation du robot
 Test Setup        Initialisation du cas de test
@@ -13,151 +16,130 @@ Suite Teardown    Fermeture des navigateurs
 
 *** Keywords ***
 Initialisation du robot
-    Builtin.Set Suite Variable               ${consommation_campagne_de_test}
-    ...                                      0
-    Builtin.Set Suite Variable               ${excel_numero_de_ligne}       
-    ...                                      1
-    Builtin.Set Suite Variable               ${excel_nombre_cas_de_test} 
-    ...                                      1
-    Browser.Set Browser Timeout              timeout=60 sec
-    ExcelLibrary.Create Excel Document       doc_id=rapport
-    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
-    ...                                      col_num=5
-    ...                                      value=Cas de test
-    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
-    ...                                      col_num=6
-    ...                                      value=Consommation C02 total du cas de test (en g)
-    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}        
-    ...                                      col_num=8
-    ...                                      value=Campagne de test
-    ExcelLibrary.Write Excel Cell            row_num=${excel_nombre_cas_de_test}
-    ...                                      col_num=9
-    ...                                      value=Consommation CO2 total de la campagne de test (en g)
+    Browser.Set Browser Timeout                                timeout=60 sec
+    Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}
+    ...                                                        0
+    RapportRSELibrary.Creer Le Fichier De Rapport              fichier_sortie=rapport/rapport_ihm.xlsx
 
 Fermeture des navigateurs
-    ExcelLibrary.Write Excel Cell            row_num=2    
-    ...                                      col_num=8
-    ...                                      value=${SUITE_NAME}
-    ExcelLibrary.Write Excel Cell            row_num=2      
-    ...                                      col_num=9
-    ...                                      value=${consommation_campagne_de_test}
-    ExcelLibrary.Save Excel Document    filename=rapport/rapport.xlsx
-    ExcelLibrary.Close All Excel Documents
+    RapportRSELibrary.Initialiser Tableau Campagne De Tests    fichier_sortie=rapport/rapport_ihm.xlsx
+    RapportRSELibrary.Renseigner Tableau Campagne De Tests     fichier_sortie=rapport/rapport_ihm.xlsx
+    ...                                                        nom_de_la_campagne_de_tests=${SUITE_NAME}
+    ...                                                        consommation_de_la_campagne_de_tests=${consommation_co2_campagne_de_tests}
     Browser.Close Browser
 
 Initialisation du cas de test
-    ExcelLibrary.Write Excel Cell            row_num=${excel_numero_de_ligne}         
-    ...                                      col_num=1
-    ...                                      value=${TEST_NAME}
-    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}
-    ...                                      col_num=1    
-    ...                                      value=url
-    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}    
-    ...                                      col_num=2    
-    ...                                      value=Proprete du site (en %)
-    ExcelLibrary.Write Excel Cell            row_num=${${excel_numero_de_ligne}+1}    
-    ...                                      col_num=3    
-    ...                                      value=Consommation de CO2 (en g)
+    Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
+    ...                                                        0
+    RapportRSELibrary.Initialiser Tableau Cas De Test          fichier_sortie=rapport/rapport_ihm.xlsx
+    ...                                                        titre_cas_de_test=${TEST_NAME}
 
 Fin du cas de test
-    ExcelLibrary.Write Excel Cell            row_num=${${excel_nombre_cas_de_test}+1}
-    ...                                      col_num=5
-    ...                                      value=${TEST_NAME}
-    ExcelLibrary.Write Excel Cell            row_num=${${excel_nombre_cas_de_test}+1}
-    ...                                      col_num=6
-    ...                                      value=${total}
-    ${excel_nombre_cas_de_test}              Builtin.Evaluate
-    ...                                      ${excel_nombre_cas_de_test} + 1
-    Builtin.Set Suite Variable               ${excel_nombre_cas_de_test}
-    ${excel_numero_de_ligne}                 Builtin.Evaluate
-    ...                                      ${excel_numero_de_ligne} + ${nombre_url_dans_cas_de_test} + 3
-    Builtin.Set Suite Variable               ${excel_numero_de_ligne}
+    RapportRSELibrary.Initialiser Tableau Cas De Test Total    fichier_sortie=rapport/rapport_ihm.xlsx
+    RapportRSELibrary.Renseigner Tableau Cas De Test Total     fichier_sortie=rapport/rapport_ihm.xlsx
+    ...                                                        titre_cas_de_test=${TEST_NAME}
+    ...                                                        consommation_co2_total=${consommation_co2_cas_de_test}
 
 Recuperer consommation CO2 de la page
     [Tags]    log
     [Arguments]    ${url_a_controler}
-    ${requete_url}                           Builtin.Evaluate    
-    ...                                      "https://api.websitecarbon.com/site?url={}".format("${url_a_controler}")
-    Browser.New Browser                      browser=chromium
-    ...                                      headless=${True}
-    ...                                      channel=chrome
-    Browser.New Page                         url=${requete_url}
-    ${headersDict}                           Builtin.Create Dictionary
-    Collections.Set To Dictionary            ${headersDict}
-    ...                                      Accept    application/json
-    ...                                      Content-Type    application/json
-    &{resultat}                              Browser.Http
-    ...                                      url=${requete_url}
-    ...                                      method=GET
-    ...                                      body=${EMPTY}
-    ...                                      headers=${headersDict}
-    Builtin.Should Be Equal                  first="${resultat.status}"
-    ...                                      second="200"
-    ...                                      msg=Il y a le message suivant : ${resultat.body}
-    Builtin.Log                              ${resultat.status}
-    Builtin.Log                              ${resultat.body}
-    Browser.Close Browser
+    ${requete_url}                                             Builtin.Evaluate    
+    ...                                                        "https://api.websitecarbon.com/site?url={}".format("${url_a_controler}")
+    Browser.New Page                                           url=${requete_url}
+    ${headersDict}                                             Builtin.Create Dictionary
+    Collections.Set To Dictionary                              ${headersDict}
+    ...                                                        Accept    application/json
+    ...                                                        Content-Type    application/json
+    &{resultat}                                                Browser.Http
+    ...                                                        url=${requete_url}
+    ...                                                        method=GET
+    ...                                                        body=${EMPTY}
+    ...                                                        headers=${headersDict}
+    Builtin.Should Be Equal                                    first="${resultat.status}"
+    ...                                                        second="200"
+    ...                                                        msg=Il y a le message suivant : ${resultat.body}
+    Builtin.Log                                                ${resultat.status}
+    Builtin.Log                                                ${resultat.body}
+    Browser.Close Page
     RETURN    ${resultat.body}
 
-Afficher la consommation des sites
-    [Arguments]    ${liste_url}
-    ${iteration}                             Builtin.Set Variable    
-    ...                                      0
-    ${total}                                 Builtin.Set Variable
-    ${list_url_co2}                          Builtin.Create List
-    ${list_url_proprete}                     Builtin.Create List
-    FOR    ${url}    IN    @{liste_url}
-        ${iteration}                         Builtin.Set Variable
-        ...                                  ${0+${iteration}}
-        ${resultat.body}                     Recuperer consommation CO2 de la page    
-        ...                                  url_a_controler=${url}
-        ${total}                             Builtin.Evaluate
-        ...                                  ${total} + ${resultat.body}[statistics][co2][grid][grams]
-        ${str_resultat_co2}                  Builtin.Convert To String
-        ...                                  item=${resultat.body}[statistics][co2][grid][grams]
-        ${resultat_proprete}                 Builtin.Evaluate
-        ...                                  100 * ${resultat.body}[cleanerThan]
-        ${str_resultat_proprete}             Builtin.Convert To String
-        ...                                  item=${resultat_proprete}
-        Collections.Append To List           ${list_url_co2}
-        ...                                  ${str_resultat_co2}[0:5]
-        Collections.Append To List           ${list_url_proprete}
-        ...                                  ${str_resultat_proprete}[0:5]
-        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
-        ...                                  col_num=1
-        ...                                  value=${url}
-        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
-        ...                                  col_num=2    
-        ...                                  value=${resultat_proprete}
-        ExcelLibrary.Write Excel Cell        row_num=${${excel_numero_de_ligne}+${iteration}+2}    
-        ...                                  col_num=3    
-        ...                                  value=${resultat.body}[statistics][co2][grid][grams]
-        ${iteration}                         Builtin.Set Variable
-        ...                                  ${1+${iteration}}
-        Builtin.Log                          message=${TEST_NAME}\nURL : ${url}\nConsommation de CO2 : ${str_resultat_co2}[0:5]g\nProprete du site : ${str_resultat_proprete}[0:5]
-    END
-    ${consommation_co2_total}                Builtin.Convert To String
-    ...                                      item=${total}
-    ${nombre_url_dans_cas_de_test}           Builtin.Get Length
-    ...                                      item=${liste_url}
-    Builtin.Set Suite Variable               ${nombre_url_dans_cas_de_test}
-    Builtin.Set Suite Variable               ${total}
+Enregistrer consommation de la page
+    [Arguments]    ${url_a_controler}
+    ${resultat.body}                                           Recuperer consommation CO2 de la page    
+    ...                                                        url_a_controler=${url_a_controler}
+    ${resultat_proprete}                                       Builtin.Evaluate
+    ...                                                        100 * ${resultat.body}[cleanerThan]
+    ${consommation_co2_cas_de_test}                            Builtin.Evaluate
+    ...                                                        ${consommation_co2_cas_de_test} + ${resultat.body}[statistics][co2][grid][grams]
+    ${consommation_co2_campagne_de_tests}                      Builtin.Evaluate
+    ...                                                        ${consommation_co2_campagne_de_tests} + ${resultat.body}[statistics][co2][grid][grams]
+    RapportRSELibrary.Renseigner Tableau Cas De Test           fichier_sortie=rapport/rapport_ihm.xlsx
+    ...                                                        url=${url_a_controler}    
+    ...                                                        proprete=${resultat_proprete}
+    ...                                                        consommation_co2=${consommation_co2_cas_de_test}
+    Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}    
+    Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
+    RETURN    ${consommation_co2_cas_de_test}     ${consommation_co2_campagne_de_tests}
 
-    ${consommation_campagne_de_test}         Builtin.Evaluate
-    ...                                      ${consommation_campagne_de_test} + ${total}
-    Builtin.Set Suite Variable               ${consommation_campagne_de_test}
-    Builtin.Log    message=${TEST_NAME}\nConsommation de CO2 total : ${consommation_co2_total}g
+Accepter les cookies - Ausy
+    Browser.Click                                              selector=//button[@id="onetrust-accept-btn-handler"]
+
+Accepter les cookies - Amazon
+    Browser.Click                                              selector=//input[@id="sp-cc-accept"]
+
+Acceder a la page "Carrieres"
+    Browser.Click                                              selector=//li[@class="navigation__menu-item"]//a[@href="/fr/carrieres/"]
+    ${url}                                                     Browser.Get Url
+    Enregistrer consommation de la page                        url_a_controler=${url}
 
 Connexion au site
-    [Arguments]    ${url}
+    [Arguments]    ${url}    ${headless}
+    Browser.New Browser                                        browser=chromium
+    ...                                                        headless=${headless}
+    ...                                                        channel=chrome
+    Browser.New Page                                           url=${url}
+    Enregistrer consommation de la page                        url_a_controler=${url}
 
+Renseigner la barre de recherche
+    [Arguments]    ${recherche}
+    Browser.Type Text                                          selector=//input[@id="search-keyword"]
+    ...                                                        txt=${recherche}
 
+Consulter le resultat
+    Browser.Click                                              selector=(//form[@id="header-search-form"]//button)[1]
+    Browser.Wait For Elements State                            selector=(//span[@class="dots"])[1]
+    ...                                                        state=attached
+    ...                                                        timeout=60
+    ${url}                                                     Browser.Get Url
+    Enregistrer consommation de la page                        url_a_controler=${url}
 
-
-
-    
+Se connecter a amazon
+    Browser.Click                                              selector=//span[@class="action-inner"]
+    Browser.Type Text                                          selector=//input[@id="ap_email"] 
+    ...                                                        txt=romuald.classeur@gmail.com
+    Browser.Click                                              selector=//input[@id="continue"] 
+    Browser.Type Text                                          selector=//input[@id="ap_password"] 
+    ...                                                        txt=ausyforever
+    Browser.Click                                              selector=//input[@id="signInSubmit"] 
+    ${url}                                                     Browser.Get Url
+    Enregistrer consommation de la page                        url_a_controler=${url}
 
 *** Test Cases ***
 Cas de test 1
-    Afficher la consommation des sites    liste_url=@{liste_url_cas_de_test_1}
+    Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
+    ...                                                        headless=${False}
+    Accepter les cookies - Ausy
+    Acceder a la page "Carrieres"
+    Renseigner la barre de recherche                           recherche=auto
+    Consulter le resultat
+
+Cas de test 2
+    Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
+    ...                                                        headless=${False}
+    Debug
+    Accepter les cookies - Amazon
+    Acceder a la page "Carrieres"
+    Renseigner la barre de recherche                           recherche=auto
+    Consulter le resultat
+
 
