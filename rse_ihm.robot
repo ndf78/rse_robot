@@ -29,6 +29,7 @@ Fermeture des navigateurs
     Browser.Close Browser
 
 Initialisation du cas de test
+    ScreenCapLibrary.Start Video Recording    alias=none    name=${EXECDIR}/videos/${TEST NAME}    fps=None    size_percentage=1    embed=True    embed_width=100px    monitor=1
     Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
     ...                                                        0
     RapportRSELibrary.Initialiser Tableau Cas De Test          fichier_sortie=rapport/rapport_ihm.xlsx
@@ -39,6 +40,9 @@ Fin du cas de test
     RapportRSELibrary.Renseigner Tableau Cas De Test Total     fichier_sortie=rapport/rapport_ihm.xlsx
     ...                                                        titre_cas_de_test=${TEST_NAME}
     ...                                                        consommation_co2_total=${consommation_co2_cas_de_test}
+    Sleep    time_=5
+    Browser.Close Browser
+    ScreenCapLibrary.Stop Video Recording
 
 Recuperer consommation CO2 de la page
     [Tags]    log
@@ -60,8 +64,8 @@ Recuperer consommation CO2 de la page
     ...                                                        msg=Il y a le message suivant : ${resultat.body}
     Builtin.Log                                                ${resultat.status}
     Builtin.Log                                                ${resultat.body}
-    Browser.Close Page
     RETURN    ${resultat.body}
+    [Teardown]        Browser.Close Page
 
 Enregistrer consommation de la page
     [Arguments]    ${url_a_controler}
@@ -90,7 +94,33 @@ Accepter les cookies - Amazon
 Acceder a la page "Carrieres"
     Browser.Click                                              selector=//li[@class="navigation__menu-item"]//a[@href="/fr/carrieres/"]
     ${url}                                                     Browser.Get Url
-    Enregistrer consommation de la page                        url_a_controler=${url}
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Ausy_page_Carrieres
+
+Acceder a la page "Vente Flash"
+    Browser.Click    selector=//a[@href="/deals?ref_=nav_cs_gb"]
+    ${url}                                                     Browser.Get Url
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Ventes_flash
+
+Acceder a la page "Votre compte"
+    Browser.Click    selector=//a[@id="nav-link-accountList"]
+
+Acceder a la page "Vos commandes"
+    Browser.Click    selector=//div[@class="ya-card-cell"]//div[@data-card-identifier="YourOrders_C"]
+    ${url}                                                     Browser.Get Url
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Vos_commandes
+
+Cliquer sur un produit
+    Browser.Click    selector=(//div[@data-testid="deal-card"])[2]
+    ${url}                                                     Browser.Get Url
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Produit
 
 Connexion au site
     [Arguments]    ${url}    ${headless}
@@ -99,6 +129,7 @@ Connexion au site
     ...                                                        channel=chrome
     Browser.New Page                                           url=${url}
     Enregistrer consommation de la page                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Page_accueil_{index}
 
 Renseigner la barre de recherche
     [Arguments]    ${recherche}
@@ -111,18 +142,18 @@ Consulter le resultat
     ...                                                        state=attached
     ...                                                        timeout=60
     ${url}                                                     Browser.Get Url
-    Enregistrer consommation de la page                        url_a_controler=${url}
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Ausy_page_Resultat_recherche.png
 
 Se connecter a amazon
-    Browser.Click                                              selector=//span[@class="action-inner"]
+    Browser.Click                                              selector=//span[@id="gw-sign-in-button"]
     Browser.Type Text                                          selector=//input[@id="ap_email"] 
     ...                                                        txt=romuald.classeur@gmail.com
     Browser.Click                                              selector=//input[@id="continue"] 
     Browser.Type Text                                          selector=//input[@id="ap_password"] 
     ...                                                        txt=ausyforever
-    Browser.Click                                              selector=//input[@id="signInSubmit"] 
-    ${url}                                                     Browser.Get Url
-    Enregistrer consommation de la page                        url_a_controler=${url}
+    Browser.Click                                              selector=//input[@id="signInSubmit"]
 
 *** Test Cases ***
 Cas de test 1
@@ -136,10 +167,10 @@ Cas de test 1
 Cas de test 2
     Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
     ...                                                        headless=${False}
-    Debug
     Accepter les cookies - Amazon
-    Acceder a la page "Carrieres"
-    Renseigner la barre de recherche                           recherche=auto
-    Consulter le resultat
-
+    Se connecter a amazon
+    Acceder a la page "Vente Flash"
+    Cliquer sur un produit
+    Acceder a la page "Votre compte"
+    Acceder a la page "Vos commandes"
 
