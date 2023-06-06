@@ -112,10 +112,14 @@ Acceder a la page "Vente Flash"
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Ventes_flash
 
 Acceder a la page "Votre compte"
-    Browser.Click    selector=//a[@id="nav-link-accountList"]
+    Browser.Click                                             selector=//a[@id="nav-link-accountList"]
+    ${url}                                                     Browser.Get Url
+    Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
+    ...                                                        url_a_controler=${url}
+    Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Votre_compte
 
 Acceder a la page "Vos commandes"
-    Browser.Click    selector=//div[@class="ya-card-cell"]//div[@data-card-identifier="YourOrders_C"]
+    Browser.Click                                              selector=//div[@class="ya-card-cell"]//div[@data-card-identifier="YourOrders_C"]
     ${url}                                                     Browser.Get Url
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
