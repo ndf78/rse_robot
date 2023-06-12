@@ -6,3 +6,6 @@ __pycache__
 browser
 .vscode
 interactive_console_output.xml
+.config
+.local
+.bash_history

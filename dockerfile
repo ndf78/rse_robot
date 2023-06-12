@@ -2,6 +2,8 @@ FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive 
 
+RUN useradd lapin --home=/home/lapin --create-home --groups=root
+
 RUN apt-get -y update
 RUN apt-get -y upgrade
 
@@ -18,3 +20,4 @@ RUN curl -SL https://deb.nodesource.com/setup_18.x | bash - \
 
 RUN npm install -g lighthouse
 
+WORKDIR /home/lapin
