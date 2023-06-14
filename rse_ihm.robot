@@ -17,15 +17,15 @@ Suite Teardown    Fermeture des navigateurs
 *** Keywords ***
 Initialisation du robot
     Browser.Set Browser Timeout                                timeout=60 sec
-    Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}
-    ...                                                        0
-    RapportRSELibrary.Creer Le Fichier De Rapport              fichier_sortie=rapport/rapport_ihm.xlsx
+    # Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}
+    # ...                                                        0
+    # RapportRSELibrary.Creer Le Fichier De Rapport              fichier_sortie=rapport/rapport_ihm.xlsx
 
 Fermeture des navigateurs
-    RapportRSELibrary.Initialiser Tableau Campagne De Tests    fichier_sortie=rapport/rapport_ihm.xlsx
-    RapportRSELibrary.Renseigner Tableau Campagne De Tests     fichier_sortie=rapport/rapport_ihm.xlsx
-    ...                                                        nom_de_la_campagne_de_tests=${SUITE_NAME}
-    ...                                                        consommation_de_la_campagne_de_tests=${consommation_co2_campagne_de_tests}
+    # RapportRSELibrary.Initialiser Tableau Campagne De Tests    fichier_sortie=rapport/rapport_ihm.xlsx
+    # RapportRSELibrary.Renseigner Tableau Campagne De Tests     fichier_sortie=rapport/rapport_ihm.xlsx
+    # ...                                                        nom_de_la_campagne_de_tests=${SUITE_NAME}
+    # ...                                                        consommation_de_la_campagne_de_tests=${consommation_co2_campagne_de_tests}
     Browser.Close Browser
 
 Initialisation du cas de test
@@ -36,16 +36,16 @@ Initialisation du cas de test
     ...                                                        embed=True   
     ...                                                        embed_width=100px   
     ...                                                        monitor=1
-    Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
-    ...                                                        0
-    RapportRSELibrary.Initialiser Tableau Cas De Test          fichier_sortie=rapport/rapport_ihm.xlsx
-    ...                                                        titre_cas_de_test=${TEST_NAME}
+    # Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
+    # ...                                                        0
+    # RapportRSELibrary.Initialiser Tableau Cas De Test          fichier_sortie=rapport/rapport_ihm.xlsx
+    # ...                                                        titre_cas_de_test=${TEST_NAME}
 
 Fin du cas de test
-    RapportRSELibrary.Initialiser Tableau Cas De Test Total    fichier_sortie=rapport/rapport_ihm.xlsx
-    RapportRSELibrary.Renseigner Tableau Cas De Test Total     fichier_sortie=rapport/rapport_ihm.xlsx
-    ...                                                        titre_cas_de_test=${TEST_NAME}
-    ...                                                        consommation_co2_total=${consommation_co2_cas_de_test}
+    # RapportRSELibrary.Initialiser Tableau Cas De Test Total    fichier_sortie=rapport/rapport_ihm.xlsx
+    # RapportRSELibrary.Renseigner Tableau Cas De Test Total     fichier_sortie=rapport/rapport_ihm.xlsx
+    # ...                                                        titre_cas_de_test=${TEST_NAME}
+    # ...                                                        consommation_co2_total=${consommation_co2_cas_de_test}
     Sleep    time_=5
     Browser.Close Browser
     ScreenCapLibrary.Stop Video Recording
@@ -75,21 +75,24 @@ Recuperer consommation CO2 de la page
 
 Enregistrer consommation de la page
     [Arguments]    ${url_a_controler}
-    ${resultat.body}                                           Recuperer consommation CO2 de la page    
-    ...                                                        url_a_controler=${url_a_controler}
-    ${resultat_proprete}                                       Builtin.Evaluate
-    ...                                                        100 * ${resultat.body}[cleanerThan]
-    ${consommation_co2_cas_de_test}                            Builtin.Evaluate
-    ...                                                        ${consommation_co2_cas_de_test} + ${resultat.body}[statistics][co2][grid][grams]
-    ${consommation_co2_campagne_de_tests}                      Builtin.Evaluate
-    ...                                                        ${consommation_co2_campagne_de_tests} + ${resultat.body}[statistics][co2][grid][grams]
-    RapportRSELibrary.Renseigner Tableau Cas De Test           fichier_sortie=rapport/rapport_ihm.xlsx
-    ...                                                        url=${url_a_controler}    
-    ...                                                        proprete=${resultat_proprete}
-    ...                                                        consommation_co2=${consommation_co2_cas_de_test}
-    Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}    
-    Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
-    RETURN    ${consommation_co2_cas_de_test}     ${consommation_co2_campagne_de_tests}
+    # ${resultat.body}                                           Recuperer consommation CO2 de la page    
+    # ...                                                        url_a_controler=${url_a_controler}
+    # ${resultat_proprete}                                       Builtin.Evaluate
+    # ...                                                        100 * ${resultat.body}[cleanerThan]
+    # ${consommation_co2_cas_de_test}                            Builtin.Evaluate
+    # ...                                                        ${consommation_co2_cas_de_test} + ${resultat.body}[statistics][co2][grid][grams]
+    # ${consommation_co2_campagne_de_tests}                      Builtin.Evaluate
+    # ...                                                        ${consommation_co2_campagne_de_tests} + ${resultat.body}[statistics][co2][grid][grams]
+    # RapportRSELibrary.Renseigner Tableau Cas De Test           fichier_sortie=rapport/rapport_ihm.xlsx
+    # ...                                                        url=${url_a_controler}    
+    # ...                                                        proprete=${resultat_proprete}
+    # ...                                                        consommation_co2=${consommation_co2_cas_de_test}
+    # Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}    
+    # Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
+    ${url_custom1}    String.Replace String    string=${url_a_controler}    search_for=https://    replace_with=''
+    ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
+    RapportRSELibrary.Executer Lighthouse    url=${url_a_controler}    sortie=${EXECDIR}/rapport/${url_custom2}
+    # RETURN    ${consommation_co2_cas_de_test}     ${consommation_co2_campagne_de_tests}
 
 Accepter les cookies - Ausy
     Browser.Click                                              selector=//button[@id="onetrust-accept-btn-handler"]
@@ -128,6 +131,10 @@ Acceder a la page "Vos commandes"
 Cliquer sur un produit
     Browser.Click    selector=(//div[@data-testid="deal-card"])[2]
     ${url}                                                     Browser.Get Url
+    ${cookies}        Browser.Get Cookies
+    # ${url_custom1}    String.Replace String    string=${url}    search_for=https://    replace_with=''
+    # ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
+    # RapportRSELibrary.Executer Lighthouse Avec Identifiant    url=${url}    option=${cookies}[7]    sortie=${EXECDIR}/rapport/${url_custom2}
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Produit
@@ -175,13 +182,13 @@ Cas de test 1
     Renseigner la barre de recherche                           recherche=auto
     Consulter le resultat
 
-Cas de test 2
-    Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
-    ...                                                        headless=${False}
-    Accepter les cookies - Amazon
-    Se connecter a amazon
-    Acceder a la page "Vente Flash"
-    Cliquer sur un produit
-    Acceder a la page "Votre compte"
-    Acceder a la page "Vos commandes"
+# Cas de test 2
+#     Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
+#     ...                                                        headless=${False}
+#     Accepter les cookies - Amazon
+#     Se connecter a amazon
+#     Acceder a la page "Vente Flash"
+#     Cliquer sur un produit
+#     Acceder a la page "Votre compte"
+#     Acceder a la page "Vos commandes"
 

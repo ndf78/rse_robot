@@ -1,4 +1,5 @@
 import openpyxl
+import os
 
 def creer_le_fichier_de_rapport(fichier_sortie):
     classeur = openpyxl.Workbook()
@@ -98,6 +99,20 @@ def renseigner_tableau_campagne_de_tests(fichier_sortie, nom_de_la_campagne_de_t
     classeur.save(fichier_sortie)
     classeur.close()
     return
+
+def executer_lighthouse(url, sortie):
+    cmd = os.system('lighthouse {} --quiet --chrome-flags="--headless" --disable-storage-reset --output json --output html --output-path {}'.format(url, sortie))
+    return cmd
+
+def executer_lighthouse_avec_identifiant(url, option, sortie):
+    cmd = os.system('lighthouse {} {} --output json --output html --output-path {}'.format(url, option, sortie))
+    return cmd
+
+# url = "https://www.ausy.fr/fr/nos-solutions/"
+# url2 = "www.ausy.fr_fr_nos-solutions_"
+# sortie = "/home/ndf/github/rse_robot/rapport/{}".format(url2)
+# executer_lighthouse(url, sortie)
+
 
 # creer_le_fichier_de_rapport("rapport/rapport.xlsx")
 # initialiser_tableau_cas_de_test("rapport/rapport.xlsx", "Cas de test 56")
