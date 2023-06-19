@@ -174,6 +174,7 @@ Se connecter a amazon
     ...                                                        txt=ausyforever
     Browser.Click                                              selector=//input[@id="signInSubmit"]
 
+
 *** Test Cases ***
 Cas de test 1
     Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
