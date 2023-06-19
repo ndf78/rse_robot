@@ -101,7 +101,7 @@ def renseigner_tableau_campagne_de_tests(fichier_sortie, nom_de_la_campagne_de_t
     return
 
 def executer_lighthouse(url, sortie):
-    cmd = os.system('lighthouse {} --quiet --chrome-flags="--headless" --disable-storage-reset --output json --output html --output-path {}'.format(url, sortie))
+    cmd = os.system('lighthouse {} --quiet --chrome-flags="--headless" --disable-storage-reset --only-categories=performance --output json --output html --output-path {}'.format(url, sortie))
     return cmd
 
 def executer_lighthouse_avec_identifiant(url, option, sortie):

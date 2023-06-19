@@ -132,9 +132,10 @@ Cliquer sur un produit
     Browser.Click    selector=(//div[@data-testid="deal-card"])[2]
     ${url}                                                     Browser.Get Url
     ${cookies}        Browser.Get Cookies
-    # ${url_custom1}    String.Replace String    string=${url}    search_for=https://    replace_with=''
-    # ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
-    # RapportRSELibrary.Executer Lighthouse Avec Identifiant    url=${url}    option=${cookies}[7]    sortie=${EXECDIR}/rapport/${url_custom2}
+    # Debug
+    ${url_custom1}    String.Replace String    string=${url}    search_for=https://    replace_with=''
+    ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
+    RapportRSELibrary.Executer Lighthouse Avec Identifiant    url=${url}    option=${cookies}[7]    sortie=${EXECDIR}/rapport/${url_custom2}
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Produit
