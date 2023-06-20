@@ -9,3 +9,4 @@ interactive_console_output.xml
 .config
 .local
 .bash_history
+.lighthouseci

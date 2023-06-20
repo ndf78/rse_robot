@@ -132,7 +132,7 @@ Cliquer sur un produit
     Browser.Click    selector=(//div[@data-testid="deal-card"])[2]
     ${url}                                                     Browser.Get Url
     ${cookies}        Browser.Get Cookies
-    # Debug
+    Debug
     ${url_custom1}    String.Replace String    string=${url}    search_for=https://    replace_with=''
     ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
     RapportRSELibrary.Executer Lighthouse Avec Identifiant    url=${url}    option=${cookies}[7]    sortie=${EXECDIR}/rapport/${url_custom2}
@@ -167,30 +167,30 @@ Consulter le resultat
 
 Se connecter a amazon
     Browser.Click                                              selector=//span[@id="gw-sign-in-button"]
-    Browser.Type Text                                          selector=//input[@id="ap_email"] 
+    Browser.Type Text                                          selector=//input[@id="ap_email"]
     ...                                                        txt=romuald.classeur@gmail.com
-    Browser.Click                                              selector=//input[@id="continue"] 
-    Browser.Type Text                                          selector=//input[@id="ap_password"] 
+    Browser.Click                                              selector=//input[@id="continue"]
+    Browser.Type Text                                          selector=//input[@id="ap_password"]
     ...                                                        txt=ausyforever
     Browser.Click                                              selector=//input[@id="signInSubmit"]
 
 
 *** Test Cases ***
-Cas de test 1
-    Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
-    ...                                                        headless=${False}
-    Accepter les cookies - Ausy
-    Acceder a la page "Carrieres"
-    Renseigner la barre de recherche                           recherche=auto
-    Consulter le resultat
+# Cas de test 1
+    # Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
+    # ...                                                        headless=${False}
+    # Accepter les cookies - Ausy
+    # Acceder a la page "Carrieres"
+    # Renseigner la barre de recherche                           recherche=auto
+    # Consulter le resultat
 
-# Cas de test 2
-#     Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
-#     ...                                                        headless=${False}
-#     Accepter les cookies - Amazon
-#     Se connecter a amazon
-#     Acceder a la page "Vente Flash"
-#     Cliquer sur un produit
-#     Acceder a la page "Votre compte"
-#     Acceder a la page "Vos commandes"
+Cas de test 2
+    Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
+    ...                                                        headless=${False}
+    Accepter les cookies - Amazon
+    Se connecter a amazon
+    Acceder a la page "Vente Flash"
+    Cliquer sur un produit
+    Acceder a la page "Votre compte"
+    Acceder a la page "Vos commandes"
 
