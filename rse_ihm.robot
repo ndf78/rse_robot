@@ -29,6 +29,7 @@ Fermeture des navigateurs
     Browser.Close Browser
 
 Initialisation du cas de test
+    # Sleep    10
     ScreenCapLibrary.Start Video Recording                     alias=none
     ...                                                        name=${EXECDIR}/videos/${TEST NAME}
     ...                                                        fps=None
@@ -46,8 +47,9 @@ Fin du cas de test
     # RapportRSELibrary.Renseigner Tableau Cas De Test Total     fichier_sortie=rapport/rapport_ihm.xlsx
     # ...                                                        titre_cas_de_test=${TEST_NAME}
     # ...                                                        consommation_co2_total=${consommation_co2_cas_de_test}
-    Sleep    time_=5
     Browser.Close Browser
+    Log To Console    message=Fin d'execution ${TEST_NAME}
+    Sleep    time_=2
     ScreenCapLibrary.Stop Video Recording
 
 Recuperer consommation CO2 de la page
@@ -89,13 +91,17 @@ Enregistrer consommation de la page
     # ...                                                        consommation_co2=${consommation_co2_cas_de_test}
     # Builtin.Set Suite Variable                                 ${consommation_co2_campagne_de_tests}    
     # Builtin.Set Test Variable                                  ${consommation_co2_cas_de_test}
+    Log To Console    message=Changement d'url detectée${\n}Analyse de la page en cours...
+
     ${url_custom1}    String.Replace String    string=${url_a_controler}    search_for=https://    replace_with=''
     ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
     RapportRSELibrary.Executer Lighthouse    url=${url_a_controler}    sortie=${EXECDIR}/rapport/${url_custom2}
     # RETURN    ${consommation_co2_cas_de_test}     ${consommation_co2_campagne_de_tests}
+    [Teardown]    Builtin.Log To Console    message=Analyse de la page: ${url_a_controler} | ${KEYWORD_STATUS}
 
 Accepter les cookies - Ausy
     Browser.Click                                              selector=//button[@id="onetrust-accept-btn-handler"]
+    [Teardown]    Builtin.Log To Console    message=Accepter les cookies - Ausy | ${KEYWORD_STATUS}
 
 Accepter les cookies - Amazon
     Browser.Click                                              selector=//input[@id="sp-cc-accept"]
@@ -106,6 +112,7 @@ Acceder a la page "Carrieres"
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Ausy_page_Carrieres
+    [Teardown]    Builtin.Log To Console    message=Acceder a la page "Carrieres" | ${KEYWORD_STATUS}
 
 Acceder a la page "Vente Flash"
     Browser.Click    selector=//a[@href="/deals?ref_=nav_cs_gb"]
@@ -132,10 +139,8 @@ Cliquer sur un produit
     Browser.Click    selector=(//div[@data-testid="deal-card"])[2]
     ${url}                                                     Browser.Get Url
     ${cookies}        Browser.Get Cookies
-    Debug
     ${url_custom1}    String.Replace String    string=${url}    search_for=https://    replace_with=''
     ${url_custom2}    String.Replace String    string=${url_custom1}    search_for=/    replace_with=_
-    RapportRSELibrary.Executer Lighthouse Avec Identifiant    url=${url}    option=${cookies}[7]    sortie=${EXECDIR}/rapport/${url_custom2}
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Amazon_page_Produit
@@ -145,15 +150,18 @@ Connexion au site
     Browser.New Browser                                        browser=chromium
     ...                                                        headless=${headless}
     ...                                                        channel=chrome
-    Browser.New Context                                        viewport={'width': 1920, 'height': 1080}
+    # Browser.New Context                                        viewport={'width': 1920, 'height': 1080}
     Browser.New Page                                           url=${url}
+    Builtin.Log To Console                                     message=Connexion au site | url: ${url} | PASS
     Enregistrer consommation de la page                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Page_accueil_{index}
+    # [Teardown]    Builtin.Log To Console    message=Connexion au site | url: ${url} | ${KEYWORD_STATUS}
 
 Renseigner la barre de recherche
     [Arguments]    ${recherche}
     Browser.Type Text                                          selector=//input[@id="search-keyword"]
     ...                                                        txt=${recherche}
+    [Teardown]    Builtin.Log To Console    message=Renseigner la barre de recherche | recherche: ${recherche} | ${KEYWORD_STATUS}
 
 Consulter le resultat
     Browser.Click                                              selector=(//form[@id="header-search-form"]//button)[1]
@@ -164,6 +172,7 @@ Consulter le resultat
     Builtin.Run Keyword And Continue On Failure                Enregistrer consommation de la page
     ...                                                        url_a_controler=${url}
     Browser.Take Screenshot                                    filename=${EXECDIR}/images/Ausy_page_Resultat_recherche.png
+    [Teardown]    Builtin.Log To Console    message=Consulter le resultat | ${KEYWORD_STATUS}
 
 Se connecter a amazon
     Browser.Click                                              selector=//span[@id="gw-sign-in-button"]
@@ -176,21 +185,21 @@ Se connecter a amazon
 
 
 *** Test Cases ***
-# Cas de test 1
-    # Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
-    # ...                                                        headless=${False}
-    # Accepter les cookies - Ausy
-    # Acceder a la page "Carrieres"
-    # Renseigner la barre de recherche                           recherche=auto
-    # Consulter le resultat
-
-Cas de test 2
-    Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
+Cas de test 1
+    Connexion au site                                          url=${liste_url_cas_de_test_1}[0]
     ...                                                        headless=${False}
-    Accepter les cookies - Amazon
-    Se connecter a amazon
-    Acceder a la page "Vente Flash"
-    Cliquer sur un produit
-    Acceder a la page "Votre compte"
-    Acceder a la page "Vos commandes"
+    Accepter les cookies - Ausy
+    Acceder a la page "Carrieres"
+    Renseigner la barre de recherche                           recherche=auto
+    Consulter le resultat
+
+# Cas de test 2
+#     Connexion au site                                          url=${liste_url_cas_de_test_2}[0]
+#     ...                                                        headless=${False}
+#     Accepter les cookies - Amazon
+#     Se connecter a amazon
+#     Acceder a la page "Vente Flash"
+#     Cliquer sur un produit
+#     Acceder a la page "Votre compte"
+#     Acceder a la page "Vos commandes"
 
